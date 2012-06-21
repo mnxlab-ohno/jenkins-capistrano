@@ -16,6 +16,12 @@ module Jenkins
       self.class.basic_auth opts[:username], opts[:password] if opts[:username] and opts[:password]
     end
 
+    def job_summary(name)
+      res = self.class.get("/job/#{CGI.escape(name)}/api/json", {:headers => { 'accept-language' => 'en-US' }})
+      raise ServerError, "Failed to retrieve a job named #{name}" unless res.code == 200
+      res
+    end
+
     def create_job(name, config)
       res = self.class.post("/createItem/api/xml?name=#{CGI.escape(name)}", xml_body(config))
       raise ServerError, parse_error_message(res) unless res.code.to_i == 200
